@@ -529,7 +529,7 @@ def main():
                              "0 (default value): dynamic loss scaling.\n"
                              "Positive power of 2: static loss scaling value.\n")
     parser.add_argument('--fine_tune_cnn', action='store_true', help='fine tune pre-trained CNN if True')
-    parser.add_argument('--resnet_root', default='./resnet', help='path the pre-trained cnn models')
+    parser.add_argument('--resnet_root', default='', help='path the pre-trained cnn models')
     parser.add_argument('--crop_size', type=int, default=224, help='crop size of image')
     parser.add_argument('--path_image', default='../pytorch-pretrained-BERT/twitter_subimages/', help='path to images')
     parser.add_argument('--mm_model', default='TomBert', help='model name') # TomBert, TomBertNoPooling, MBert, MBertNoPooling, ResBert
