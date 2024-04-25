@@ -443,7 +443,7 @@ def main():
 
     ## Required parameters
     parser.add_argument("--data_dir",
-                        default='../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017/',
+                        default='../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017/',
                         type=str,
                         required=True,
                         help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
@@ -549,9 +549,9 @@ def main():
     print("*"*50)
 
     if args.task_name == "twitter2017":        # this refers to twitter-2017 dataset
-        args.path_image = "../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017_images/"
+        args.path_image = "../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017_images/"
     elif args.task_name == "twitter2015":  # this refers to twitter-2015 dataset
-        args.path_image = "../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2015_images/"
+        args.path_image = "../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2015_images/"
     else:
         print("The task name is not right!")
 
@@ -645,7 +645,7 @@ def main():
                                                                 num_labels=num_labels,
                                                                 pooling=args.pooling)
     net = getattr(resnet, 'resnet152')()
-    net.load_state_dict(torch.load(os.path.join(args.resnet_root, '../input/twitter15-and-17/resnet152.pth')))
+    net.load_state_dict(torch.load(os.path.join(args.resnet_root, '../../input/twitter15-and-17/resnet152.pth')))
     encoder = myResnet(net, args.fine_tune_cnn, device)
     if args.fp16:
         model.half()

@@ -265,7 +265,7 @@ def main():
 
     ## Required parameters
     parser.add_argument("--data_dir",
-                        default='../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017/',
+                        default='../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017/',
                         type=str,
                         required=True,
                         help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
