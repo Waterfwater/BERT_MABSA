@@ -265,7 +265,7 @@ def main():
 
     ## Required parameters
     parser.add_argument("--data_dir",
-                        default='../absa_data/twitter',
+                        default='../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017/',
                         type=str,
                         required=True,
                         help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
@@ -274,7 +274,7 @@ def main():
                         "bert-large-uncased, bert-base-cased, bert-large-cased, bert-base-multilingual-uncased, "
                         "bert-base-multilingual-cased, bert-base-chinese.")
     parser.add_argument("--task_name",
-                        default='twitter',
+                        default='twitter2017',
                         type=str,
                         required=True,
                         help="The name of the task to train.")
@@ -355,12 +355,12 @@ def main():
 
     processors = {
         "twitter2015": AbmsaProcessor,    # our twitter-2015 dataset
-        "twitter": AbmsaProcessor         # our twitter-2017 dataset
+        "twitter2017": AbmsaProcessor         # our twitter-2017 dataset
     }
 
     num_labels_task = {
         "twitter2015": 3,                # our twitter-2015 dataset
-        "twitter": 3                     # our twitter-2017 dataset
+        "twitter2017": 3                     # our twitter-2017 dataset
     }
 
     if args.local_rank == -1 or args.no_cuda:
