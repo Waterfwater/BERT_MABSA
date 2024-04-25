@@ -680,7 +680,7 @@ class BertPreTrainingHeads(nn.Module):
         seq_relationship_score = self.seq_relationship(pooled_output)
         return prediction_scores, seq_relationship_score
 
-
+#抽象类
 class PreTrainedBertModel(nn.Module):
     """ An abstract class to handle weights initialization and
         a simple interface for dowloading and loading pretrained models.
@@ -1316,6 +1316,131 @@ class TomBertForMMSequenceClassification(PreTrainedBertModel):
             return logits
 
 
+class myBertForMMSequenceClassification(PreTrainedBertModel):
+    """Entity-Attention BERT model for classification with text and image inputs, 1+text. (MBERT II)
+    """
+    def __init__(self, config, num_labels=2, pooling="first"):
+        super(myBertForMMSequenceClassification, self).__init__(config)
+        self.num_labels = num_labels
+        self.pooling = pooling
+        self.bert = BertModel(config)
+        self.s2_bert = BertModel(config)
+        #self.s2_bert = self.bert
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.vismap2text = nn.Linear(2048, config.hidden_size)
+
+        #这是对方面词-图像的融合
+        self.ent2img_attention_aspect = BertCrossEncoder(config)
+        self.ent2img_pooler_aspect = BertPooler(config)
+
+        #这是对文本-图像的融合
+        self.ent2img_attention = BertCrossAttentionLayer(config)
+        self.ent2img_pooler = BertPooler(config)
+
+
+        self.comb_attention = MultimodalEncoder(config)
+        #self.comb_attention = BertLayer(config)
+
+        if pooling == "cls":
+            self.text_pooler = BertText1Pooler(config)
+            self.classifier = nn.Linear(config.hidden_size, num_labels)
+        elif pooling == "first":
+            self.img_pooler = BertPooler(config)
+            self.classifier = nn.Linear(config.hidden_size, num_labels)
+        else:
+            self.text_pooler = BertText1Pooler(config)
+            self.img_pooler = BertPooler(config)
+            self.classifier = nn.Linear(config.hidden_size * 2, num_labels)
+
+        self.apply(self.init_bert_weights)
+
+        ##上面是tombert的初始化，下面是mybert的初始化
+        # self.bert = BertModel(config)
+        # self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        # self.vismap2text = nn.Linear(2048, config.hidden_size)
+        # #self.img_attention = BertLayer(config)
+        # self.comb_attention = MultimodalEncoder(config)
+        # if pooling == "cls":
+        #     self.text_pooler = BertText1Pooler(config)
+        #     self.classifier = nn.Linear(config.hidden_size, num_labels)
+        # elif pooling == "first":
+        #     self.img_pooler = BertPooler(config)
+        #     self.classifier = nn.Linear(config.hidden_size, num_labels)
+        # else:
+        #     self.text_pooler = BertText1Pooler(config)
+        #     self.img_pooler = BertPooler(config)
+        #     self.classifier = nn.Linear(config.hidden_size * 2, num_labels)
+
+        # self.apply(self.init_bert_weights)
+        ####
+
+    def forward(self, input_ids, s2_input_ids, visual_embeds_att, token_type_ids=None, s2_type_ids=None,
+                attention_mask=None, s2_mask=None, added_attention_mask=None, labels=None, copy_flag=False):
+        # Target-oriented Multimodal Sentiment Classification with BERT
+        #input_id 是句子 s2_input_ids是方面词
+        if copy_flag:
+            print("*************************copy bert's weights to s2_bert******************")
+            self.s2_bert = copy.deepcopy(self.bert)
+        
+        #这个只和最下面的文本处理有关
+        sequence_output, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
+        s2_output, s2_pooled_output = self.s2_bert(s2_input_ids, s2_type_ids, s2_mask, output_all_encoded_layers=False)
+
+        # apply entity-based attention mechanism to obtain different image representations
+        img_mask = added_attention_mask[:,:49]
+        extended_img_mask = img_mask.unsqueeze(1).unsqueeze(2)
+        extended_img_mask = extended_img_mask.to(dtype=next(self.parameters()).dtype) # fp16 compatibility
+        extended_img_mask = (1.0 - extended_img_mask) * -10000.0
+
+        vis_embed_map = visual_embeds_att.view(-1, 2048, 49).permute(0, 2, 1)  # self.batch_size, 49, 2048
+        converted_vis_embed_map = self.vismap2text(vis_embed_map)  # self.batch_size, 49, hidden_dim
+
+        text_cross_encoder = self.ent2img_attention(sequence_output, converted_vis_embed_map, extended_img_mask)
+        text_cross_output_layer = text_cross_encoder[-1]
+        text_cross_output = self.ent2img_pooler(text_cross_output_layer)
+
+        s2_cross_encoder = self.ent2img_attention_aspect(s2_output, converted_vis_embed_map, extended_img_mask)
+        s2_cross_output_layer = s2_cross_encoder[-1]
+        s2_cross_output = self.ent2img_pooler_aspect(s2_cross_output_layer)
+        #################s2_cross_output, _ = s2_cross_output_layer.max(1)
+
+        transpose_img_embed1 = s2_cross_output.unsqueeze(1)
+        transpose_img_embed2 = s2_cross_output.unsqueeze(1)
+        text_img_output = torch.cat((transpose_img_embed1, transpose_img_embed2), dim=1)
+        #################text_img_output = torch.cat((transpose_img_embed, sequence_output[:,1:,:]), dim=1)
+        ###########text_img_output = torch.cat((s2_cross_output_layer, sequence_output), dim=1)
+
+        comb_attention_mask = added_attention_mask[:, 48:]  # only the first dimension is for image
+        ###########comb_attention_mask = torch.cat((s2_mask, added_attention_mask[:, 49:]), dim=-1)
+        extended_attention_mask = comb_attention_mask.unsqueeze(1).unsqueeze(2)
+        extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype) # fp16 compatibility
+        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
+
+        multimodal_encoder = self.comb_attention(text_img_output, extended_attention_mask)
+        img_att_text_output_layer = multimodal_encoder[-1]
+
+        if self.pooling == "cls":
+            comb_text_output = self.text_pooler(img_att_text_output_layer)
+            pooled_output = self.dropout(comb_text_output)
+        elif self.pooling == "first":
+            comb_img_output = self.img_pooler(img_att_text_output_layer)
+            pooled_output = self.dropout(comb_img_output)
+        else:
+            comb_text_output = self.text_pooler(img_att_text_output_layer)
+            comb_img_output = self.img_pooler(img_att_text_output_layer)
+            final_output = torch.cat((comb_text_output, comb_img_output), dim=-1)
+            pooled_output = self.dropout(final_output)
+
+        logits = self.classifier(pooled_output)
+
+        if labels is not None:
+            loss_fct = CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+            return loss
+        else:
+            return logits
+        
+        
 class TomBertNoPoolingForMMSequenceClassification(PreTrainedBertModel):
     """Entity-Attention BERT model for classification with text and image inputs, 16+text. (MBERT II)
     """

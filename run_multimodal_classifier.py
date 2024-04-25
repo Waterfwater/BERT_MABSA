@@ -34,7 +34,7 @@ from torch.utils.data.distributed import DistributedSampler
 from my_bert.tokenization import BertTokenizer
 from my_bert.mm_modeling import (ResBertForMMSequenceClassification, MBertForMMSequenceClassification,
                           MBertNoPoolingForMMSequenceClassification, TomBertForMMSequenceClassification,
-                          TomBertNoPoolingForMMSequenceClassification)
+                          TomBertNoPoolingForMMSequenceClassification,myBertForMMSequenceClassification)
 from my_bert.optimization import BertAdam
 from my_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 
@@ -638,6 +638,12 @@ def main():
                                                                 cache_dir=PYTORCH_PRETRAINED_BERT_CACHE / 'distributed_{}'.format(
                                                                     args.local_rank),
                                                                 num_labels=num_labels)
+    elif args.mm_model == 'myBert':
+        model = myBertForMMSequenceClassification.from_pretrained(args.bert_model,
+                                                                cache_dir=PYTORCH_PRETRAINED_BERT_CACHE / 'distributed_{}'.format(
+                                                                    args.local_rank),
+                                                                num_labels=num_labels,
+                                                                pooling=args.pooling)
     else: # TomBert by default
         model = TomBertForMMSequenceClassification.from_pretrained(args.bert_model,
                                                                 cache_dir=PYTORCH_PRETRAINED_BERT_CACHE / 'distributed_{}'.format(
