@@ -647,7 +647,7 @@ def main():
                                                                 num_labels=num_labels,
                                                                 pooling=args.pooling)
     else: # TomBert by default
-        model = TomBertForMMSequenceClassification.from_pretrained(args.bert_model,
+        model = TomBertForMMSequenceClassification.from_pretrained('bert-base-cased',#args.bert_model,
                                                                 cache_dir=PYTORCH_PRETRAINED_BERT_CACHE / 'distributed_{}'.format(
                                                                     args.local_rank),
                                                                 num_labels=num_labels,
