@@ -1392,17 +1392,27 @@ class myBertForMMSequenceClassification(PreTrainedBertModel):
         extended_img_mask = extended_img_mask.to(dtype=next(self.parameters()).dtype) # fp16 compatibility
         extended_img_mask = (1.0 - extended_img_mask) * -10000.0
 
+
         vis_embed_map = visual_embeds_att.view(-1, 2048, 49).permute(0, 2, 1)  # self.batch_size, 49, 2048
         converted_vis_embed_map = self.vismap2text(vis_embed_map)  # self.batch_size, 49, hidden_dim
 
-        text_cross_encoder = self.ent2img_attention(sequence_output, converted_vis_embed_map, extended_img_mask)
-        text_cross_output_layer = text_cross_encoder[-1]
-        text_cross_output = self.ent2img_pooler(text_cross_output_layer)
-
         s2_cross_encoder = self.ent2img_attention_aspect(s2_output, converted_vis_embed_map, extended_img_mask)
         s2_cross_output_layer = s2_cross_encoder[-1]
+        print('============================')
+        print(s2_cross_output_layer.shape())
         s2_cross_output = self.ent2img_pooler_aspect(s2_cross_output_layer)
-        #################s2_cross_output, _ = s2_cross_output_layer.max(1)
+        #################s2_cross_output,
+        text_cross_encoder = self.ent2img_attention(sequence_output, converted_vis_embed_map, extended_img_mask)
+        text_cross_output_layer = text_cross_encoder[-1]
+        
+        print(text_cross_output_layer.shape())
+        text_cross_output = self.ent2img_pooler(text_cross_output_layer)
+
+        # s2_cross_encoder = self.ent2img_attention_aspect(s2_output, converted_vis_embed_map, extended_img_mask)
+        # s2_cross_output_layer = s2_cross_encoder[-1]
+        # print(s2_cross_output_layer.shape())
+        # s2_cross_output = self.ent2img_pooler_aspect(s2_cross_output_layer)
+        # #################s2_cross_output, _ = s2_cross_output_layer.max(1)
 
         transpose_img_embed1 = text_cross_output.unsqueeze(1)
         transpose_img_embed2 = s2_cross_output.unsqueeze(1)
