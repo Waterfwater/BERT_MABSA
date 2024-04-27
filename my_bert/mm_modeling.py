@@ -1404,7 +1404,7 @@ class myBertForMMSequenceClassification(PreTrainedBertModel):
         s2_cross_output = self.ent2img_pooler_aspect(s2_cross_output_layer)
         #################s2_cross_output, _ = s2_cross_output_layer.max(1)
 
-        transpose_img_embed1 = s2_cross_output.unsqueeze(1)
+        transpose_img_embed1 = text_cross_output.unsqueeze(1)
         transpose_img_embed2 = s2_cross_output.unsqueeze(1)
         text_img_output = torch.cat((transpose_img_embed1, transpose_img_embed2), dim=1)
         #################text_img_output = torch.cat((transpose_img_embed, sequence_output[:,1:,:]), dim=1)
