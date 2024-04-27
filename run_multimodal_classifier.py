@@ -445,21 +445,21 @@ def main():
     parser.add_argument("--data_dir",
                         default='../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017/',
                         type=str,
-                        required=True,
+                        required=False,
                         help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
-    parser.add_argument("--bert_model", default=None, type=str, required=True,
+    parser.add_argument("--bert_model", default='bert-base-uncased', type=str, required=False,
                         help="Bert pre-trained model selected in the list: bert-base-uncased, "
                         "bert-large-uncased, bert-base-cased, bert-large-cased, bert-base-multilingual-uncased, "
                         "bert-base-multilingual-cased, bert-base-chinese.")
     parser.add_argument("--task_name",
                         default='twitter2017',
                         type=str,
-                        required=True,
+                        required=False,
                         help="The name of the task to train.")
     parser.add_argument("--output_dir",
-                        default=None,
+                        default='./output/twitter2017_myBert_first_mm_output/',
                         type=str,
-                        required=True,
+                        required=False,
                         help="The output directory where the model predictions and checkpoints will be written.")
 
     ## Other parameters
@@ -477,8 +477,10 @@ def main():
                              "than this will be padded.")
     parser.add_argument("--do_train",
                         action='store_true',
+                        default=True,
                         help="Whether to run training.")
     parser.add_argument("--do_eval",
+                        default=True,
                         action='store_true',
                         help="Whether to run eval on the dev set.")
     parser.add_argument("--do_lower_case",
@@ -532,7 +534,7 @@ def main():
     parser.add_argument('--resnet_root', default='', help='path the pre-trained cnn models')
     parser.add_argument('--crop_size', type=int, default=224, help='crop size of image')
     parser.add_argument('--path_image', default='../pytorch-pretrained-BERT/twitter_subimages/', help='path to images')
-    parser.add_argument('--mm_model', default='TomBert', help='model name') # TomBert, TomBertNoPooling, MBert, MBertNoPooling, ResBert
+    parser.add_argument('--mm_model', default='myBert', help='model name') # TomBert, TomBertNoPooling, MBert, MBertNoPooling, ResBert
     parser.add_argument('--pooling', default='first', help='pooling method') # first, cls, concat
     parser.add_argument('--bertlayer', action='store_true', help='whether to add another bert layer')
     parser.add_argument('--tfn', action='store_true', help='whether to use TFN')

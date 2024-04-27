@@ -336,6 +336,8 @@ class BertSelfAttention(nn.Module):
         attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
         attention_scores = attention_scores / math.sqrt(self.attention_head_size)
         # Apply the attention mask is (precomputed for all layers in BertModel forward() function)
+        # print(attention_scores.shape)
+        # print(attention_mask.shape)
         attention_scores = attention_scores + attention_mask
 
         # Normalize the attention scores to probabilities.
@@ -1334,7 +1336,7 @@ class myBertForMMSequenceClassification(PreTrainedBertModel):
         self.ent2img_pooler_aspect = BertPooler(config)
 
         #这是对文本-图像的融合
-        self.ent2img_attention = BertCrossAttentionLayer(config)
+        self.ent2img_attention = BertCrossEncoder(config)
         self.ent2img_pooler = BertPooler(config)
 
 
@@ -1384,8 +1386,9 @@ class myBertForMMSequenceClassification(PreTrainedBertModel):
         
         #这个只和最下面的文本处理有关
         sequence_output, pooled_output = self.bert(input_ids, token_type_ids, attention_mask, output_all_encoded_layers=False)
+        s1=sequence_output
+        # print(s1.shape)
         s2_output, s2_pooled_output = self.s2_bert(s2_input_ids, s2_type_ids, s2_mask, output_all_encoded_layers=False)
-
         # apply entity-based attention mechanism to obtain different image representations
         img_mask = added_attention_mask[:,:49]
         extended_img_mask = img_mask.unsqueeze(1).unsqueeze(2)
@@ -1398,14 +1401,14 @@ class myBertForMMSequenceClassification(PreTrainedBertModel):
 
         s2_cross_encoder = self.ent2img_attention_aspect(s2_output, converted_vis_embed_map, extended_img_mask)
         s2_cross_output_layer = s2_cross_encoder[-1]
-        print('============================')
-        print(s2_cross_output_layer.shape())
+        # print('============================')
         s2_cross_output = self.ent2img_pooler_aspect(s2_cross_output_layer)
         #################s2_cross_output,
         text_cross_encoder = self.ent2img_attention(sequence_output, converted_vis_embed_map, extended_img_mask)
-        text_cross_output_layer = text_cross_encoder[-1]
         
-        print(text_cross_output_layer.shape())
+        text_cross_output_layer = text_cross_encoder[-1]
+        # print(s2_cross_output_layer.shape)
+        # print(text_cross_output_layer.shape)
         text_cross_output = self.ent2img_pooler(text_cross_output_layer)
 
         # s2_cross_encoder = self.ent2img_attention_aspect(s2_output, converted_vis_embed_map, extended_img_mask)
@@ -1414,13 +1417,33 @@ class myBertForMMSequenceClassification(PreTrainedBertModel):
         # s2_cross_output = self.ent2img_pooler_aspect(s2_cross_output_layer)
         # #################s2_cross_output, _ = s2_cross_output_layer.max(1)
 
+        # print(text_cross_output.shape)
+        # print(s2_cross_output.shape)
+
         transpose_img_embed1 = text_cross_output.unsqueeze(1)
         transpose_img_embed2 = s2_cross_output.unsqueeze(1)
-        text_img_output = torch.cat((transpose_img_embed1, transpose_img_embed2), dim=1)
+        # print(transpose_img_embed1)
+        # print(transpose_img_embed2)
+
+        text_img_output= torch.cat((transpose_img_embed1, transpose_img_embed2), dim=1)
+        text_img_output1=text_img_output
+
+        for i in range(1,32):
+            temp = text_img_output1
+            text_img_output=torch.cat((text_img_output,temp),dim=1)
+        
+        text_img_output=torch.cat((text_img_output,transpose_img_embed2),dim=1)
+        # print(text_img_output.shape)
+
+        #text_img_output = torch.cat((transpose_img_embed1, transpose_img_embed2), dim=1)
+        text_img_output1 = torch.cat((transpose_img_embed2,s1), dim=1)
+        # print(text_img_output.shape)
+        # print(text_img_output1.shape)
         #################text_img_output = torch.cat((transpose_img_embed, sequence_output[:,1:,:]), dim=1)
         ###########text_img_output = torch.cat((s2_cross_output_layer, sequence_output), dim=1)
 
         comb_attention_mask = added_attention_mask[:, 48:]  # only the first dimension is for image
+        # print(comb_attention_mask.shape)
         ###########comb_attention_mask = torch.cat((s2_mask, added_attention_mask[:, 49:]), dim=-1)
         extended_attention_mask = comb_attention_mask.unsqueeze(1).unsqueeze(2)
         extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype) # fp16 compatibility

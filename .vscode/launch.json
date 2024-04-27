@@ -1,0 +1,25 @@
+// {
+//     // Use IntelliSense to learn about possible attributes.
+//     // Hover to view descriptions of existing attributes.
+//     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+//     "version": "0.2.0",
+//     "configurations": [
+//         {
+//             "name": "E:\\py\\TomBERT_updating\\run_multimodal_classifier.py",
+//             "type": "debugpy",
+//             "request": "launch",
+//             "program": "E:\\py\\TomBERT_updating",
+//             "console": "integratedTerminal",
+//             "args": [
+//                 "--data_dir","../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017 --task_name twitter2017",
+//                 "--output_dir", "./output/twitter2017_myBert_first_mm_output/",
+//                 "--bert_model","bert-base-uncased",
+//                 "--do_train",
+//                 "--do_eval", 
+//                 "--train_batch_size","32",
+//                 "--mm_model","myBert",
+//                 "--pooling","first"
+//             ]
+//         }
+//     ]
+// }
