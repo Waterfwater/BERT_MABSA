@@ -534,7 +534,7 @@ def main():
     parser.add_argument('--resnet_root', default='', help='path the pre-trained cnn models')
     parser.add_argument('--crop_size', type=int, default=224, help='crop size of image')
     parser.add_argument('--path_image', default='../pytorch-pretrained-BERT/twitter_subimages/', help='path to images')
-    parser.add_argument('--mm_model', default='myBert', help='model name') # TomBert, TomBertNoPooling, MBert, MBertNoPooling, ResBert
+    parser.add_argument('--mm_model', default='TomBert', help='model name') # TomBert, TomBertNoPooling, MBert, MBertNoPooling, ResBert
     parser.add_argument('--pooling', default='first', help='pooling method') # first, cls, concat
     parser.add_argument('--bertlayer', action='store_true', help='whether to add another bert layer')
     parser.add_argument('--tfn', action='store_true', help='whether to use TFN')
@@ -647,7 +647,8 @@ def main():
                                                                 num_labels=num_labels,
                                                                 pooling=args.pooling)
     else: # TomBert by default
-        model = TomBertForMMSequenceClassification.from_pretrained(args.bert_model,
+        model = TomBertForMMSequenceClassification.from_pretrained(args.bert_model,#下面这个是新赠的变量
+                                                                #    state_dict='my_bert/trained_ABSA.pth',
                                                                 cache_dir=PYTORCH_PRETRAINED_BERT_CACHE / 'distributed_{}'.format(
                                                                     args.local_rank),
                                                                 num_labels=num_labels,
@@ -868,6 +869,7 @@ def main():
 
     # Load a trained model that you have fine-tuned
     model_state_dict = torch.load(output_model_file)
+    model_state_dict1 = torch.load('../../input/twitter15-and-17/trained_ABSA.pth')
     if args.mm_model == 'ResBert':
         model = ResBertForMMSequenceClassification.from_pretrained(args.bert_model,
                                                                    state_dict=model_state_dict,
@@ -889,7 +891,7 @@ def main():
                                                                 num_labels=num_labels)
     else: # TomBert by default
         model = TomBertForMMSequenceClassification.from_pretrained(args.bert_model,
-                                                                state_dict=model_state_dict,
+                                                                state_dict=model_state_dict1,
                                                                 num_labels=num_labels,
                                                                 pooling=args.pooling)
     model.to(device)
