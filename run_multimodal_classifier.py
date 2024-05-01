@@ -386,7 +386,7 @@ def convert_mm_examples_to_features(examples, label_list, max_seq_length, max_en
         except:
             count += 1
             # print('image has problem!')
-            image_path_fail = os.path.join(path_img, '17_06_4705.jpg')
+            image_path_fail = os.path.join(path_img, '358443277453766657.jpg')
             image = image_process(image_path_fail, transform)
 
         if ex_index < 1:
@@ -443,7 +443,7 @@ def main():
 
     ## Required parameters
     parser.add_argument("--data_dir",
-                        default='../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017/',
+                        default='../../input/twitter15-and-17/twi_data/IJCAI2019_data/depression/',
                         type=str,
                         required=False,
                         help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
@@ -452,7 +452,7 @@ def main():
                         "bert-large-uncased, bert-base-cased, bert-large-cased, bert-base-multilingual-uncased, "
                         "bert-base-multilingual-cased, bert-base-chinese.")
     parser.add_argument("--task_name",
-                        default='twitter2017',
+                        default='depression',
                         type=str,
                         required=False,
                         help="The name of the task to train.")
@@ -555,7 +555,7 @@ def main():
     elif args.task_name == "twitter2015":  # this refers to twitter-2015 dataset
         args.path_image = "../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2015_images/"
     elif args.task_name == "depression":  # this refers to depression
-        args.path_image = "../../input/twitter15-and-17/twi_data/IJCAI2019_data/depression/image/"
+        args.path_image = "../../input/twitter15-and-17/depression/image"
     else:
         print("The task name is not right!")
 
