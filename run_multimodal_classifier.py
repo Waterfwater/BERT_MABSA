@@ -895,7 +895,7 @@ def main():
                                                                 num_labels=num_labels)
     else: # TomBert by default
         model = TomBertForMMSequenceClassification.from_pretrained(args.bert_model,
-                                                                state_dict=model_state_dict1,
+                                                                state_dict=model_state_dict,
                                                                 num_labels=num_labels,
                                                                 pooling=args.pooling)
     model.to(device)
