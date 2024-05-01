@@ -555,7 +555,7 @@ def main():
     elif args.task_name == "twitter2015":  # this refers to twitter-2015 dataset
         args.path_image = "../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2015_images/"
     elif args.task_name == "depression":  # this refers to depression
-        args.path_image = "../../input/twitter15-and-17/depression/image"
+        args.path_image = "../../input/twitter15-and-17/depression/depression/image"
     else:
         print("The task name is not right!")
 
