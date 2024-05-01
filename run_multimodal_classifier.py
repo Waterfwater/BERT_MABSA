@@ -554,17 +554,21 @@ def main():
         args.path_image = "../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2017_images/"
     elif args.task_name == "twitter2015":  # this refers to twitter-2015 dataset
         args.path_image = "../../input/twitter15-and-17/twi_data/IJCAI2019_data/twitter2015_images/"
+    elif args.task_name == "depression":  # this refers to depression
+        args.path_image = "../../input/twitter15-and-17/twi_data/IJCAI2019_data/depression/image/"
     else:
         print("The task name is not right!")
 
     processors = {
         "twitter2015": AbmsaProcessor,    # our twitter-2015 dataset
-        "twitter2017": AbmsaProcessor         # our twitter-2017 dataset
+        "twitter2017": AbmsaProcessor,         # our twitter-2017 dataset
+        "depression": AbmsaProcessor
     }
 
     num_labels_task = {
         "twitter2015": 3,                # our twitter-2015 dataset
-        "twitter2017": 3                     # our twitter-2017 dataset
+        "twitter2017": 3,                    # our twitter-2017 dataset
+        "depression": 2 
     }
 
     if args.local_rank == -1 or args.no_cuda:
