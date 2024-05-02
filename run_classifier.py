@@ -355,12 +355,15 @@ def main():
 
     processors = {
         "twitter2015": AbmsaProcessor,    # our twitter-2015 dataset
-        "twitter2017": AbmsaProcessor         # our twitter-2017 dataset
+        "twitter2017": AbmsaProcessor,         # our twitter-2017 dataset
+        "depression": AbmsaProcessor
+
     }
 
     num_labels_task = {
         "twitter2015": 3,                # our twitter-2015 dataset
-        "twitter2017": 3                     # our twitter-2017 dataset
+        "twitter2017": 3,                     # our twitter-2017 dataset
+        "depression":2
     }
 
     if args.local_rank == -1 or args.no_cuda:
