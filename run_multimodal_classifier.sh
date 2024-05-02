@@ -2,7 +2,7 @@
 for i in 'depression' #'twitter2017' 'twitter2015' # 'twitter'
 do
     echo ${i}
-    for k in 'TomBert' # 'TomBert' 'MBert' 'TomBertNoPooling' 'MBertNoPooling' 'ResBert'
+    for k in 'MBert' # 'TomBert' 'MBert' 'TomBertNoPooling' 'MBertNoPooling' 'ResBert'
     do
         echo ${k}
         for j in 'first' # 'first' 'cls' 'both'
