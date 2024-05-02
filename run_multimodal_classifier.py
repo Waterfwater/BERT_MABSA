@@ -983,6 +983,10 @@ def main():
         fout_p = open(os.path.join(args.output_dir, "pred.txt"), 'w')
         fout_t = open(os.path.join(args.output_dir, "true.txt"), 'w')
 
+        #下面是自己加的
+        fout_my = open(os.path.join(args.output_dir, "view.txt"), 'w')
+        
+
         for i in range(len(pred_label)):
             attstr = str(pred_label[i])
             fout_p.write(attstr + '\n')
